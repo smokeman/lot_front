@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "dev": "webpack-dev-server --port 3333 --open --hot --config webpack.config.js",
+    "dev": "webpack-dev-server --host 0.0.0.0 --port 3333 --open --hot --config webpack.config.js",
     "build": "webpack --progress --hide-modules --config webpack.prod.config.js"
   },
   "author": "",
@@ -30,7 +30,7 @@
     "vue-router": "^2.7.0",
     "vue-style-loader": "^3.0.3",
     "vue-template-compiler": "^2.4.4",
-    "vux-loader": "^1.1.9",
+    "vux-loader": "^1.1.11",
     "webpack": "^2.3.2",
     "webpack-dev-server": "^2.8.2",
     "webpack-merge": "^4.1.0"

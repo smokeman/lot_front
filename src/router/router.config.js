@@ -1,7 +1,7 @@
 import VueRouter from 'vue-router';
 import Lottery from '../components/lottery/Lottery.vue'
 import News from '../components/news/news.vue'
-import Setting from '../components/setting/Setting.vue'
+import Setting from '../components/setting/setting.vue'
 
 let routes = [
         { path: '/', redirect: '/setting', meta: { keepAlive: false, title: '抽奖' } },

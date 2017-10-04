@@ -1,5 +1,5 @@
 import io from 'socket.io-client'
-
+import ip from './ip.js'
 const USER = {
     userid:null,
     username:null,
@@ -12,7 +12,8 @@ const USER = {
     userinfo:{},
     init:function(_user){
 
-        this.socket = io.connect('ws://127.0.0.1:4000')
+        // this.socket = io.connect('ws://127.0.0.1:4000')
+        this.socket = io.connect(ip)
 
         // this.nick = _user.nick
         // this.mch_id = _user.mch_id

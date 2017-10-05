@@ -104,7 +104,7 @@
                     status: 1
                 }, //设置参数
                 mch_id: 1,
-                mch_name: '1912酒吧',
+                mch_name: '1912_酒吧',
                 title: '',
                 nick: 'smoke',
                 sign: "",

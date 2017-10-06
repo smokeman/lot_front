@@ -1,10 +1,12 @@
 <template>
+  
   <div id="app">
     <ViewBox>
-      <XHeader :title="$route.meta.title" slot="header" class="header">
+      <x-header :title="$route.meta.title" slot="header" class="header">
         <span slot="overwrite-left"></span>
         <span slot="right"></span>
-      </XHeader>
+      </x-header>
+      <x-header :title="$route.meta.title" :left-options="options" class="header"></x-header>
       <div class="content">
         <router-view></router-view>
       </div>
@@ -15,19 +17,31 @@
           </span>
           <span slot="label">抽奖</span>
         </TabbarItem>
-        <TabbarItem link="/news">
+        <!--<TabbarItem link="/news">
           <span slot="icon">
             <img src="./assets/icon_nav_button.png"></img>
           </span>
           <span slot="label">发现</span>
+        </TabbarItem>-->
+        <TabbarItem link="/wine_mch">
+          <span slot="icon">
+            <img src="./assets/wine.png"></img>
+          </span>
+          <span slot="label">存酒商家</span>
         </TabbarItem>
-        <TabbarItem link="/game">
+        <TabbarItem link="/wine_player">
+          <span slot="icon">
+            <img src="./assets/wine.png"></img>
+          </span>
+          <span slot="label">存酒玩家</span>
+        </TabbarItem>
+        <TabbarItem link="/setting">
           <span slot="icon" link="/news/game">
             <img src="./assets/icon_nav_cell.png"></img>
           </span>
           <span slot="label">设置</span>
         </TabbarItem>
-        <TabbarItem link="/setting">
+        <TabbarItem link="/my">
           <span slot="icon">
             <img src="./assets/icon_nav_msg.png"></img>
           </span>
@@ -46,7 +60,8 @@
   export default {
     data() {
       return {
-        d:1
+        d:1,
+        options:{showBack: false}
       };
     },
     router,
@@ -56,6 +71,18 @@
       TabbarItem,
       ViewBox
     },
+    watch:{
+      '$route.path':function(val,oldVal){
+        if(val.slice(1).indexOf('/') === -1){
+          // 说明是主页面
+          this.options.showBack = false
+        }else{
+          // 说明是子页面
+          this.options.showBack = true
+
+        }
+      }
+    }
   };
 </script>
 

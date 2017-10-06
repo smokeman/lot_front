@@ -1,4 +1,4 @@
-<!--<template>
+<template>
   <div style="height: 1000px">
     <x-input title="输入昵称" type="text" placeholder="" ref="u" :value="nick"></x-input>
     <x-button type="primary" @click.native="save" plain style="border-radius:99px;width: 94%">保存</x-button>
@@ -78,4 +78,4 @@ export default {
     margin-bottom: 8px;
   }
 }
-</style>-->
+</style>

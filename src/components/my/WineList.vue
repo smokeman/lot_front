@@ -1,6 +1,6 @@
 <template>
     <div>
-        <x-header></x-header>
+        <!--<x-header></x-header>-->
         <scroller lock-x height="500px" ref="scroller">
             <div>
                 <!--:footer-buttons="buttons2" -->

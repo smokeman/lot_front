@@ -10,9 +10,9 @@ import VueRouter from 'vue-router'
 
 // import './lib/css/animate.css';
 
-import { ToastPlugin } from 'vux'
+import { ToastPlugin,AlertPlugin } from 'vux'
 Vue.use(ToastPlugin)
-
+Vue.use(AlertPlugin)
 // Vue.config.productionTip = false;
 Vue.use(VueRouter);
 // Vue.use(VueResource);

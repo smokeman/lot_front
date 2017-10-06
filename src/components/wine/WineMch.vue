@@ -22,37 +22,38 @@
                 <button-tab-item @on-item-click="reset()">重置</button-tab-item>
             </button-tab>
             <cell></cell>
-            <table style="width:100%">
-                <thead>
-                    <tr>
-                        <th style="width:28%">酒名</th>
-                        <th style="width:28%">数量</th>
-                        <th style="width:10%">
-                            <!--<button type="primary">新增</button>-->
-                            <x-button type="primary" plain style="border-radius:20px;" @click.native="newList">+</x-button>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="wine in wineList">
-                        <td style="width:28%"><input type="text" v-model="wine.name"></td>
-                        <td style="width:28%">
-                            <input type="number" v-model="wine.num">
-                        </td>
-                        <td style="width:10%"></td>
-                    </tr>
-                    <!--<tr>
-                        <td class="am-text-left"><span class="amiconbtn">1</span></td>
-                        <td class="am-text-left">zed</td>
-                        <td class="am-text-right">酒</td>
-                    </tr>
-                    <tr>
-                        <td class="am-text-left"><span class="amiconbtn">2</span></td>
-                        <td class="am-text-left">smoke</td>
-                        <td class="am-text-right">烟</td>
-                    </tr>-->
-                </tbody>
-            </table>
+            <div>
+                <flexbox>
+                    <flexbox-item :span="1/9">
+                    </flexbox-item>
+                    <flexbox-item :span="3/9">
+                        <div>酒名</div>
+                    </flexbox-item>
+                    <flexbox-item :span="3/9">
+                        <div>数量</div>
+                    </flexbox-item>
+                    <flexbox-item :span="1/9">
+                        <x-button type="primary" plain style="border-radius:10px;" @click.native="newList">＋</x-button>
+                    </flexbox-item>
+                    <flexbox-item :span="1/9">
+                    </flexbox-item>
+                </flexbox>
+            </div>
+            <div>
+                <flexbox v-for="wine in wineList">
+                    <!--<flexbox-item :span="0/9">
+                    </flexbox-item>-->
+                    <flexbox-item :span="4/9">
+                        <x-input placeholder="输入酒名" v-model="wine.name"></x-input>
+                    </flexbox-item>
+                    <flexbox-item :span="4/9">
+                        <!--<x-input placeholder="输入数量" v-model="wine.num"></x-input>-->
+                        <x-number :min="0" :step="0.1" v-model="wine.num" fillable></x-number>
+                    </flexbox-item>
+                    <flexbox-item :span="1/9">
+                    </flexbox-item>
+                </flexbox>
+            </div>
         </group>
         <divider></divider>
         <group v-if="status == 2">
@@ -62,6 +63,10 @@
         <group v-if="status == 3">
             此处扫码枪
         </group>
+        <!--<alert title="提示" content="内容不能为空" onShow="alert"></alert>-->
+        <div v-transfer-dom>
+            <!--<alert v-model="show" title="提示" @on-show="onShow" @on-hide="onHide">内容不能为空</alert>-->
+        </div>
         <!--<div>
             <x-button style="width:40%">保存</x-button>
             <x-button style="width:40%">重置</x-button>
@@ -70,9 +75,15 @@
 </template>
 
 <script>
-    import {XButton,Cell,ButtonTab, ButtonTabItem,Divider,XInput,XNumber,Group,Qrcode} from 'vux'
+    import {Alert,Flexbox,FlexboxItem,XButton,Cell,ButtonTab, ButtonTabItem,Divider,XInput,XNumber,Group,Qrcode,TransferDomDirective as TransferDom} from 'vux'
     export default {
+        directives: {
+            TransferDom
+        },
         components:{
+            Alert,
+            Flexbox,
+            FlexboxItem,
             Cell,
             XButton,
             ButtonTab,
@@ -91,6 +102,8 @@
                 status:0,
                 wineList:[],
                 wine_name:'',
+                show: false,
+
             }
         },
         methods:{
@@ -102,7 +115,7 @@
             },
             newList(){
                 if(this.wineList.length == 0){
-                    this.wineList.push({name:'',num:''})
+                    this.wineList.push({name:'',num:1})
                 }
                 if(this.wineList[this.wineList.length - 1].name == undefined){
                     console.log('名不能未定义')
@@ -131,11 +144,44 @@
                 // }
             },
             save(){
-                this.status ++
+                if(this.wineList.length == 0 || this.wineList[0].name == '' || this.wineList[0].num == '' ){
+                    this.showPlugin()
+                }else{
+                    this.status ++
+                }
+                // this.$vux.alert.show({
+                //     title: 'VUX is Cool',
+                //     content: 'ooo',
+                //     onShow () {
+                //     console.log('Plugin: I\'m showing')
+                //     },
+                //     onHide () {
+                //     console.log('Plugin: I\'m hiding now')
+                //     }
+                // })
+                
             },
             reset(){
 
+            },
+            showPlugin () {
+                this.$vux.alert.show({
+                    title: '提示',
+                    content: '内容不能为空',
+                    onShow () {
+                        console.log('Plugin: I\'m showing')
+                    },
+                    onHide () {
+                        console.log('Plugin: I\'m hiding now')
+                    }
+                })
+            },
+            },
+            onHide () {
+                console.log('on hide')
+            },
+            onShow () {
+                console.log('on show')
             }
-        }
     }
 </script>

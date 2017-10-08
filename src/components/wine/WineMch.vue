@@ -57,8 +57,9 @@
         </group>
         <divider></divider>
         <group v-if="status == 2">
-            请用户扫码确认
-            <qrcode value="https://vux.li?x-page=demo_qrcode" type="img"></qrcode>
+            请用户扫码确认1
+            <qrcode value="http://115.159.189.179:4000/index_prod.html#/wine_ok" type="img"></qrcode>
+            <!--<qrcode value="https://vux.li?x-page=demo_qrcode" type="img"></qrcode>-->
         </group>
         <group v-if="status == 3">
             此处扫码枪
@@ -76,6 +77,7 @@
 
 <script>
     import {Alert,Flexbox,FlexboxItem,XButton,Cell,ButtonTab, ButtonTabItem,Divider,XInput,XNumber,Group,Qrcode,TransferDomDirective as TransferDom} from 'vux'
+    import wx from 'weixin-js-sdk'
     export default {
         directives: {
             TransferDom
@@ -162,7 +164,8 @@
                 
             },
             reset(){
-
+                console.log(1)
+                console.log(wx)
             },
             showPlugin () {
                 this.$vux.alert.show({

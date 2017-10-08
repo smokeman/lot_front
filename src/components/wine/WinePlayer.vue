@@ -39,7 +39,7 @@
         <!--<divider></divider>-->
         <group v-if="status == 3">
             请用户扫码确认
-            <qrcode value="https://vux.li?x-page=demo_qrcode" type="img"></qrcode>
+            <qrcode value="http://115.159.189.179:4000/index_prod.html#/wine_ok" type="img"></qrcode>
         </group>
         
         

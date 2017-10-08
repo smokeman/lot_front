@@ -13,6 +13,7 @@ const USER = {
     init:function(_user){
 
         // this.socket = io.connect('ws://127.0.0.1:4000')
+        // this.socket = io.connect(ip,{path: '/socket.io'})
         this.socket = io.connect(ip)
 
         // this.nick = _user.nick

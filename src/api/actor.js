@@ -12,6 +12,7 @@ const actor = {
     create_time:null,
     second:null,
     downtime:'2017-10-03 16:00:00',
+    wineArr:[],//存酒单
     init:function(_user){
         user.init(_user)
         // this.status = LOGIN
@@ -76,6 +77,17 @@ const actor = {
     },
     getSecond:function(){
         user.socket.emit('getSecond',user.userinfo.mch_id)
+    },
+    initWine:function(_user){
+        user.socket.emit('wine_geybyuser',_user)
+        user.socket.on('wine_geybyuser',function(_wineArr){
+            actor.wineArr.push(_wineArr)
+        })
+    },
+    pullWine:function(_user){
+        // 通知服务器缓存一个socket,当前要等待中
+        user.socket.emit('wine_pull_await',_user)
+        user.socket.on('wine_updated')
     }
 }
 

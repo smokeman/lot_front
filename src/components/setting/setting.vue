@@ -79,7 +79,7 @@
     import status from '../../api/status.js'
     import dateformat from 'dateformat'
     import { XTable, Clocker } from 'vux'
-
+    
     export default {
         components: {
             XTable,

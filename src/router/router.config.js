@@ -6,6 +6,8 @@ import My from '../components/my/My.vue'
 import WineList from '../components/my/WineList.vue'
 import LuckerList from '../components/my/LuckerList.vue'
 import CouponList from '../components/my/CouponList.vue'
+import Coupon from '../components/coupon/Coupon.vue'
+import CouponPay from '../components/coupon/CouponPay.vue'
 import WineMch from '../components/wine/WineMch.vue'
 import WinePlayer from '../components/wine/WinePlayer.vue'
 import ok from '../components/wine/ok.vue'
@@ -24,7 +26,9 @@ let routes = [
         { path: '/my', component: My ,meta: { keepAlive: false, title: '我的' }},
         { path: '/my/winelist', component: WineList ,meta: { keepAlive: false, title: '我的' }},
         { path: '/my/luckerlist', component: LuckerList ,meta: { keepAlive: false, title: '我的' }},
-        { path: '/my/couponlist', component: CouponList ,meta: { keepAlive: false, title: '我的' }}
+        { path: '/my/couponlist', component: CouponList ,meta: { keepAlive: false, title: '我的' }},
+        { path: '/coupon', component: Coupon ,meta: { keepAlive: false, title: '优惠券发放' }},
+        { path: '/coupon_pay', component: CouponPay ,meta: { keepAlive: false, title: '优惠券处理' }}
         
 ]
 

@@ -41,6 +41,18 @@
           </span>
           <span slot="label">设置</span>
         </TabbarItem>
+        <TabbarItem link="/coupon">
+          <span slot="icon">
+            <img src="./assets/icon_nav_cell.png"></img>
+          </span>
+          <span slot="label">优惠券设置</span>
+        </TabbarItem>
+        <TabbarItem link="/coupon_pay">
+          <span slot="icon">
+            <img src="./assets/icon_nav_cell.png"></img>
+          </span>
+          <span slot="label">优惠券处理</span>
+        </TabbarItem>
         <TabbarItem link="/my">
           <span slot="icon">
             <img src="./assets/icon_nav_msg.png"></img>
@@ -53,10 +65,11 @@
 </template>
 
 <script>
-  import { XHeader, Tabbar, TabbarItem, ViewBox } from 'vux';
+  import { XHeader, Tabbar, TabbarItem, ViewBox } from 'vux'
   //   import router from './common/js/router.js';
   import router from './router/router.config.js'
-  
+  import { mapState, mapActions } from 'vuex'
+
   export default {
     data() {
       return {
@@ -71,6 +84,9 @@
       TabbarItem,
       ViewBox
     },
+    // activated(){
+    //   document.querySelector('#app').scrollTop = this.demoTop
+    // },
     watch:{
       '$route.path':function(val,oldVal){
         if(val.slice(1).indexOf('/') === -1){
@@ -79,10 +95,53 @@
         }else{
           // 说明是子页面
           this.options.showBack = true
-
+          setTimeout(() => {
+            console.log('1111111111111111111111')
+            this.box = document.querySelector('#demo_list_box')
+            
+            if (this.box) {
+              // this.box.addEventListener("click",()=>{
+              //   console.log(this.box.scrollTop)
+              // },false)
+              this.box.removeEventListener('scroll', this.handler, false)
+              this.box.addEventListener('scroll', this.handler, false)
+            }
+            console.log(this.box)
+          }, 1000)
         }
       }
-    }
+    },
+    beforeDestroy () {
+      this.box && this.box.removeEventListener('scroll', this.handler, false)
+    },
+    mounted(){
+      // console.log(mapActions)
+        // this.handler = () => {
+          // if (this.path === '/demo') {
+            // this.box = document.querySelector('#demo_list_box')
+            // this.updateDemoPosition(this.box.scrollTop)
+          // }
+      // }
+    },
+    computed: mapState({
+      demoTop: state => state.vux.demoScrollTop,
+      // direction: state => state.vux.direction
+    })
+    
+      // ...mapState({
+      //   route: state => state.route,
+      //   path: state => state.route.path,
+      //   deviceready: state => state.app.deviceready,
+      //   demoTop: state => state.vux.demoScrollTop,
+      //   isLoading: state => state.vux.isLoading,
+      //   direction: state => state.vux.direction
+      // })
+    
+    // methods:{
+    //   ...mapActions([
+    //     'updateDemoPosition'
+    //   ])
+    // }
   };
 </script>
 

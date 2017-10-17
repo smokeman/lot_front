@@ -7,7 +7,7 @@
         </div>-->
         <button-tab v-model="demo01">
             <button-tab-item @on-item-click="push()">存酒</button-tab-item>
-            <button-tab-item @on-item-click="pull()">取酒</button-tab-item>
+            <button-tab-item @on-item-click="pull()">取酒扫码</button-tab-item>
         </button-tab>
         <divider>————————————————————————————</divider>
         <!--<group>
@@ -58,11 +58,16 @@
         <divider></divider>
         <group v-if="status == 2">
             请用户扫码确认1
-            <qrcode value="http://115.159.189.179:4000/index_prod.html#/wine_ok" type="img"></qrcode>
-            <!--<qrcode value="https://vux.li?x-page=demo_qrcode" type="img"></qrcode>-->
+            <!--<qrcode value="" type="img"></qrcode>-->
+            <qrcode :value="qrcode" type="img"></qrcode>
         </group>
-        <group v-if="status == 3">
+        <group v-if="status >= 3">
             此处扫码枪
+            <button v-on:click="scan">模拟扫码</button>
+        </group>
+        <group v-if="status == 4">
+            <div v-for="wine in wineGet">{{wine.name}} * {{wine.num}} </div>
+            <button v-on:click="pullDo">取酒处理</button>
         </group>
         <!--<alert title="提示" content="内容不能为空" onShow="alert"></alert>-->
         <div v-transfer-dom>
@@ -78,6 +83,16 @@
 <script>
     import {Alert,Flexbox,FlexboxItem,XButton,Cell,ButtonTab, ButtonTabItem,Divider,XInput,XNumber,Group,Qrcode,TransferDomDirective as TransferDom} from 'vux'
     import wx from 'weixin-js-sdk'
+    // import wine from '../../api/wine.js'
+    import status from '../../api/status.js'
+    import axios from 'axios'
+    import qs from 'qs'
+    // import owner from '../../api/owner.js'
+    import user from '../../api/user.js'
+
+    const url = "http://127.0.0.1:4000"
+    axios.defaults.baseURL = "http://127.0.0.1:4000"
+
     export default {
         directives: {
             TransferDom
@@ -103,17 +118,55 @@
                 roundValue:0,
                 status:0,
                 wineList:[],
+                wineGet:[],
                 wine_name:'',
                 show: false,
-
+                qrcode:'',
+                wx
             }
         },
         methods:{
+            pullDo(){
+                axios.post("/wine/wine_do",qs.stringify({wine_id:5}))
+                .then((ret)=>{
+                    // 通知用户
+                    user.socket.emit("notify",{tag:'1'},"取酒完成")
+                    
+                })
+            },
+            scan(){
+                axios.get("/wine/wine_getbyid?wine_id=5")
+                .then((ret)=>{
+                    var winArr = ret.data.wine_list
+                    console.log(winArr)
+                    var tmpArr = []
+                    var tmpObj
+                    winArr.split(',').forEach((item,index)=>{
+                        if(index % 2 == 0){
+                            tmpObj = {}
+                            tmpObj["name"] = item
+                            tmpArr.push(tmpObj)
+                        }else{
+                            tmpObj["num"] = item
+                        }
+                    })
+                    this.wineGet = tmpArr
+                    this.status = 4
+                })
+            },
             push(){
                 this.status = 1
+                
             },
             pull(){
                 this.status = 3
+                wx.scanQRCode({
+                needResult: 1,
+                desc: 'scanQRCode desc',
+                success: function (res) {
+                    alert(JSON.stringify(res));
+                }
+                });
             },
             newList(){
                 if(this.wineList.length == 0){
@@ -146,22 +199,47 @@
                 // }
             },
             save(){
+                axios.defaults.baseURL = "http://127.0.0.1:4000"
+                // axios.defaults.headers.common['Authorization'] = 
+                axios.defaults.headers['Content-Type']="application/x-www-form-urlencoded"
+                // axios.defaults.headers['Content-Type']="application/json"
                 if(this.wineList.length == 0 || this.wineList[0].name == '' || this.wineList[0].num == '' ){
                     this.showPlugin()
                 }else{
-                    this.status ++
+                    let _wine_info = {
+                        user_info:{oper:'abcde123456',nick:'smoke',mch_id:1},
+                        wine_list:this.wineList
+                    }
+                    axios.post('/wine/wine_save',qs.stringify(_wine_info))
+                    .then((ret)=>{
+                        console.log(ret.data.wine_id)
+                        this.qrcode = url + "/wine_update?wine_id=" + ret.data.wine_id
+                        this.status = 2
+                        var _ = this
+
+                        user.socket.emit("subscribe",{
+                            mch_id:1,
+                            user_id:1,
+                            openid:'xxx',
+                            tag:2
+                        })
+
+                        user.socket.on('notify',function(_data){
+                            _.$vux.alert.show({
+                                title: '提示',
+                                content: _data,
+                                onShow () {
+                                    console.log('Plugin: I\'m showing')
+                                },
+                                onHide () {
+                                    console.log('Plugin: I\'m hiding now')
+                                }
+                            })
+                            user.socket.emit('cancelSubscribe',{tag:2})
+                        })
+
+                    })
                 }
-                // this.$vux.alert.show({
-                //     title: 'VUX is Cool',
-                //     content: 'ooo',
-                //     onShow () {
-                //     console.log('Plugin: I\'m showing')
-                //     },
-                //     onHide () {
-                //     console.log('Plugin: I\'m hiding now')
-                //     }
-                // })
-                
             },
             reset(){
                 console.log(1)
@@ -169,22 +247,96 @@
             },
             showPlugin () {
                 this.$vux.alert.show({
-                    title: '提示',
-                    content: '内容不能为空',
-                    onShow () {
-                        console.log('Plugin: I\'m showing')
-                    },
-                    onHide () {
-                        console.log('Plugin: I\'m hiding now')
-                    }
-                })
+                        title: '提示',
+                        content: '内容不能为空',
+                        onShow () {
+                            console.log('Plugin: I\'m showing')
+                        },
+                        onHide () {
+                            console.log('Plugin: I\'m hiding now')
+                        }
+                    })
             },
-            },
-            onHide () {
-                console.log('on hide')
-            },
-            onShow () {
-                console.log('on show')
+        },
+        watch:{
+            'status.wine_owner':function(val,oldVal){
+                switch(val){
+                    case __begin:
+                        break;
+                    case __new:
+
+                        break;
+                    case __saveing:
+
+                        break;
+                    case __saved:
+
+                        break;
+                    case __scaned:
+
+                        break;
+                    case __pulled:
+
+                        break;
+                    case __end:
+                        break;
+                    default:
+                }
             }
-    }
+        },
+        mounted(){
+            
+            // wx.config({
+            //     debug: false,
+            //     appId: 'wx4fe135a46ae46e63',
+            //     timestamp: 1507448301,
+            //     nonceStr: 'A2GPKTyesx56LBR3',
+            //     signature: '7aa56f1438603913c8cf4d5d7049add2e8ab7b37',
+            //     jsApiList: [
+            //         'checkJsApi',
+            //         'onMenuShareTimeline',
+            //         'onMenuShareAppMessage',
+            //         'onMenuShareQQ',
+            //         'onMenuShareWeibo',
+            //         'onMenuShareQZone',
+            //         'hideMenuItems',
+            //         'showMenuItems',
+            //         'hideAllNonBaseMenuItem',
+            //         'showAllNonBaseMenuItem',
+            //         'translateVoice',
+            //         'startRecord',
+            //         'stopRecord',
+            //         'onVoiceRecordEnd',
+            //         'playVoice',
+            //         'onVoicePlayEnd',
+            //         'pauseVoice',
+            //         'stopVoice',
+            //         'uploadVoice',
+            //         'downloadVoice',
+            //         'chooseImage',
+            //         'previewImage',
+            //         'uploadImage',
+            //         'downloadImage',
+            //         'getNetworkType',
+            //         'openLocation',
+            //         'getLocation',
+            //         'hideOptionMenu',
+            //         'showOptionMenu',
+            //         'closeWindow',
+            //         'scanQRCode',
+            //         'chooseWXPay',
+            //         'openProductSpecificView',
+            //         'addCard',
+            //         'chooseCard',
+            //         'openCard'
+            //     ]
+            // });
+        }
+            // onHide () {
+            //     console.log('on hide')
+            // },
+            // onShow () {
+            //     console.log('on show')
+            // }
+        }
 </script>

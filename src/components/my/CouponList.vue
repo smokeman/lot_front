@@ -10,10 +10,14 @@
         <!--优惠券列表-->
         <div class="box2" style="position:absolute; width:100%;height:75%;overflow:scroll">
             <div v-for="coupon in couponList">
-                <form-preview :check-item="checkItem" :header-label=" '店名:' + coupon.mch_name" :header-value="'剩余:' +coupon.remain +'天'" :body-items="coupon.detail" :has-check="coupon.pay_type && (lockPrice == 0 || lockPrice == coupon.detail[0].value) && (lockMchId == 0 || lockMchId == coupon.mch_id )" :footer-buttons="collect" :name="coupon" > 
+                <form-preview v-if="coupon.remain >= 0" :check-item="checkItem" :header-label=" '店名:' + coupon.mch_name" :header-value="'剩余:' +coupon.remain +'天'" :body-items="coupon.detail" :has-check="coupon.pay_type && (lockPrice == 0 || lockPrice == coupon.detail[0].value) && (lockMchId == 0 || lockMchId == coupon.mch_id )" :footer-buttons="collect" :name="coupon" > 
                 </form-preview>
             </div>
             <x-button v-if="old == false" type="primary" plain style="border-radius:20px;width:90%" @click.native="show_old">显示过期优惠券</x-button>
+            <div v-for="coupon in couponList" v-if="old">
+                <form-preview v-if="coupon.remain < 0" :check-item="checkItem" :header-label=" '店名:' + coupon.mch_name" :header-value="'过期:' + (-1 * parseInt(coupon.remain)) +'天'" :body-items="coupon.detail" :has-check="false" :footer-buttons="{}" :name="coupon" > 
+                </form-preview>
+            </div>
         </div>
         <!--二维码-->
         <div v-transfer-dom >

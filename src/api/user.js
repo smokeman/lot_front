@@ -14,7 +14,7 @@ const USER = {
 
         // this.socket = io.connect('ws://127.0.0.1:4000')
         // this.socket = io.connect(ip,{path: '/socket.io'})
-        this.socket = io.connect(ip)
+        this.socket = io.connect("ws://" + ip)
 
         // this.nick = _user.nick
         // this.mch_id = _user.mch_id

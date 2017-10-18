@@ -1,18 +1,5 @@
 <template>
     <div class="box">
-        <!--<group title="优惠券设置">
-            <x-input title="抵价金额" placeholder="抵价金额" v-model="price"></x-input>
-            <x-input title="最低消费" placeholder="最低消费" v-model="low_price"></x-input>
-            <x-input title="数量" placeholder="输入数量" v-model="num"></x-input>
-            <datetime v-model="end_date" @on-change="change" title="失效日期"></datetime>
-        </group>
-        
-        <group v-if="status == 0">
-            {{errTag}}
-        </group>
-        <group title="优惠券列表">
-            <div v-for="coupon in couponList">[{{coupon.coupon_code}}]满{{coupon.low_price}}减{{coupon.price}},截止日期{{coupon.end_date}}</div>
-        </group>-->
         <x-button type="primary" @click.native="scan">模拟扫码</x-button>
         <group title="" v-if="status == 2 ">
             <div>
@@ -31,9 +18,10 @@
     import axios from 'axios'
     import qs from 'qs'
     import user from '../../api/user.js'
+    import ip from '../../api/ip.js'
 
     const nowStr = new Date().getFullYear() + "-" + (new Date().getMonth() + 1) + '-' + (new Date().getDate() +1)
-    axios.defaults.baseURL = "http://127.0.0.1:4000"
+    axios.defaults.baseURL = "http://" + ip
     axios.defaults.headers['Content-Type']="application/x-www-form-urlencoded"
 
     export default {
@@ -88,7 +76,7 @@
         methods: {
             scan(){
                 this.status = 2
-                axios.get('/coupon/getByAutoId?auto_id=4-5-6')
+                axios.get('/coupon/getByAutoId?auto_id=4-5')
                 .then((ret)=>{
                     this.price = ret.data.price
                     this.low_price = ret.data.low_price
@@ -99,6 +87,7 @@
                 axios.get("/coupon/pay?coupon_id=1&openid=ss")
                 .then((ret)=>{
                     if(ret.data == "success"){
+                        this.status = 1
                         user.socket.emit("notify",{tag:1},"消费成功")
                     }
                 })

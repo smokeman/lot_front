@@ -89,9 +89,10 @@
     import qs from 'qs'
     // import owner from '../../api/owner.js'
     import user from '../../api/user.js'
+    import ip from '../../api/ip.js'
 
-    const url = "http://127.0.0.1:4000"
-    axios.defaults.baseURL = "http://127.0.0.1:4000"
+    const url = "http://" + ip
+    axios.defaults.baseURL = "http://" + ip
 
     export default {
         directives: {

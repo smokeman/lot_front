@@ -5,7 +5,7 @@
             <flexbox-item  v-for="ticket in choosed" :span="1 / ( choosed.length + 2)"><div class="flex-demo">{{ticket.price}}</div></flexbox-item>
             <!--<flexbox-item  v-for="i in Object.keys(chooseObj).length" :key="i" :span="1 / 8"><div class="flex-demo">{{i}}</div></flexbox-item>-->
             <flexbox-item v-if="showTitle" :span="1 / ( choosed.length + 2)"><div class="flex-demo"><button>总价:{{choosedSum}}</button></div></flexbox-item>
-            <flexbox-item v-if="showTitle" :span="1 / ( choosed.length + 2)"><div class="flex-demo"><button v-on:click="use">使用</button></div></flexbox-item>
+            <flexbox-item v-if="showTitle" :span="1 / ( choosed.length + 2)"><div class="flex-demo"><button v-on:click="showQrcode('more')">使用</button></div></flexbox-item>
         </flexbox>
         <!--优惠券列表-->
         <div class="box2" style="position:absolute; width:100%;height:75%;overflow:scroll">
@@ -46,8 +46,9 @@
     import util from '../../api/util.js'
     import user from '../../api/user.js'
     import { mapState, mapActions } from 'vuex'
+    import ip from '../../api/ip.js'
 
-    axios.defaults.baseURL = "http://127.0.0.1:4000"
+    axios.defaults.baseURL = "http://" + ip
     axios.defaults.headers['Content-Type']="application/x-www-form-urlencoded"
 
     export default {
@@ -127,10 +128,13 @@
                         console.log(this.chooseObj)
                         this.choosed = []
                         this.choosedSum = 0
+                        this.qrcode = ""
                         Object.keys(this.chooseObj).forEach((el,i)=>{
                             this.choosedSum += parseInt(this.chooseObj[el].price.slice(0,-1))
                             this.choosed.push(this.chooseObj[el])
+                            this.qrcode += "-"+this.chooseObj[el].id
                         })
+                        this.qrcode = this.qrcode.slice(1)
                         console.log(this.choosed)
                         
                     }
@@ -139,83 +143,10 @@
                     style: 'primary',
                     text: '使用',
                     onButtonClick: (name) => {
-                    // alert(`clicking ${name}`)
-                        this.qrcode = name + ""
-                        console.log(this.qrcode)
-                        console.log(name)
-                        this.show = true
-                        // 订阅事件
-                        var _ = this
-                        user.socket.emit("subscribe",{
-                            mch_id:1,
-                            user_id:1,
-                            openid:'ss',
-                            tag:name
-                        })
-                        user.socket.on('notify',function(_data){
-                            _.show = false
-                            _.showPosition('top')
-                            _.$vux.alert.show({
-                                title: '提示',
-                                content: _data,
-                                onShow () {
-                                    console.log('Plugin: I\'m showing')
-                                },
-                                onHide () {
-                                    console.log('Plugin: I\'m hiding now')
-                                }
-                            })
-                            user.socket.emit('cancelSubscribe',{tag:name})
-                        })
+                        // name is a coupon Object
+                        this.showQrcode(name.id + "")
                     }
                 }],
-                collectMore: [{
-                        style: 'default',
-                        text: "选择",
-                        onButtonClick:(name) => {
-
-                            var price = name.split(",")[1].slice(0,-1)
-                            this.choosedId.push(name.split(",")[0])
-                            this.choosed.push(price)
-                            this.choosedSum += parseInt(price)
-                            
-                        }
-                    },{
-                        style: 'primary',
-                        text: '使用',
-                        onButtonClick: (name) => {
-                        // alert(`clicking ${name}`)
-                            var name = name.split(",")[0]
-                            this.qrcode = name + ""
-                            console.log(this.qrcode)
-                            console.log(name)
-                            this.show = true
-                            // 订阅事件
-                            var _ = this
-                            user.socket.emit("subscribe",{
-                                mch_id:1,
-                                user_id:1,
-                                openid:'ss',
-                                tag:name
-                            })
-                            user.socket.on('notify',function(_data){
-                                _.show = false
-                                _.showPosition('top')
-                                _.$vux.alert.show({
-                                    title: '提示',
-                                    content: _data,
-                                    onShow () {
-                                        console.log('Plugin: I\'m showing')
-                                    },
-                                    onHide () {
-                                        console.log('Plugin: I\'m hiding now')
-                                    }
-                                })
-                                user.socket.emit('cancelSubscribe',{tag:name})
-                            })
-                        }
-                }],
-                wine_name:'',
                 old:false,
             }
             },
@@ -258,14 +189,12 @@
                 save(){
                     this.status ++
                 },
-                use(){
-                    var sum = "";
-                    this.choosedId.forEach((el)=>{
-                        sum += "-" + el
-                    })
-                    console.log(sum)
-                    // console.log(this.qrcode)
-                    // console.log(name)
+                showQrcode(qrcode){
+                    if(qrcode == 'more'){
+                        
+                    }else{
+                        this.qrcode = qrcode
+                    }
                     this.show = true
                     // 订阅事件
                     var _ = this
@@ -273,7 +202,7 @@
                         mch_id:1,
                         user_id:1,
                         openid:'ss',
-                        tag:name
+                        tag:this.qrcode
                     })
                     user.socket.on('notify',function(_data){
                         _.show = false
@@ -281,14 +210,8 @@
                         _.$vux.alert.show({
                             title: '提示',
                             content: _data,
-                            onShow () {
-                                console.log('Plugin: I\'m showing')
-                            },
-                            onHide () {
-                                console.log('Plugin: I\'m hiding now')
-                            }
                         })
-                        user.socket.emit('cancelSubscribe',{tag:name})
+                        user.socket.emit('cancelSubscribe',{tag:this.qrcode})
                     })
                 }
             },

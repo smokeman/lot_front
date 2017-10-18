@@ -62,8 +62,9 @@
     import axios from 'axios'
     import user from '../../api/user.js'
     import util from '../../api/util.js'
+    import ip from '../../api/ip.js'
 
-    var url = "http://127.0.0.1:4000"
+    var url = "http://" + ip
     axios.defaults.baseURL = url
 
     export default {

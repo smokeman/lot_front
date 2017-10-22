@@ -5,7 +5,7 @@
             <div>
                 <div>酒吧id:
                     <input type="text" v-model="mch_id">
-                    <button v-on:click="mchin">登陆</button>
+                    <button v-on:click="scan">扫码桌面二维码</button>
                     <span v-if="actor.stat === status.__login">已登陆</span>
                     <span v-if="actor.stat === status.__joined">进行中</span>
                 </div>
@@ -60,6 +60,12 @@
     import status from '../../api/status.js'
     import actor from '../../api/actor.js'
     import dateformat from 'dateformat'
+    // import axios from 'axios'
+    import user from '../../api/user.js'
+    // import ip from '../../api/ip.js'
+
+    // axios.defaults.baseURL = "http://" + ip
+    // axios.defaults.headers['Content-Type']="application/x-www-form-urlencoded"
 
     export default {
         components: {
@@ -88,18 +94,21 @@
                 console.log("stat"+val+","+oldVal)
                 switch(val){
                     case status.__begin:
-                        console.log('111111111111')
+                        // console.log('111111111111')
+                        
+
                         break;
                     case status.__login:
-                        localStorage.setItem("mch_id", this.mch_id)
-                        localStorage.setItem("mch_name", this.mch_name)
-                        localStorage.setItem("nick", this.nick)
-                        actor.init({
-                            mch_id:this.mch_id,
-                            mch_name:this.mch_name,
-                            nick:this.nick,
-                            usertype:2
-                        })
+                        
+                        // localStorage.setItem("mch_id", this.mch_id)
+                        // localStorage.setItem("mch_name", this.mch_name)
+                        // localStorage.setItem("nick", this.nick)
+                        // actor.init({
+                        //     mch_id:this.mch_id,
+                        //     mch_name:this.mch_name,
+                        //     nick:this.nick,
+                        //     usertype:2
+                        // })
                         break;
                     case status.__ing:
                         // this.isNew = false
@@ -136,8 +145,42 @@
             actor.stat = status.__begin
         },
         methods: {
-            mchin(){
-                actor.stat = status.__login
+            scan(){
+                var _ = this
+                wx.scanQRCode({
+                    needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+                        scanType: ["qrCode","barCode"], // 可以指定扫二维码还是一维码，默认二者都有
+                        success: function (res) {
+                            var result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+                            
+                            var url = ""
+                            // 必须以这个路由路径开头－才算扫这个码
+                            // 1、扫桌面商户
+                            if(result.indexOf('/merchant/getById') == 0){
+                                _.$axios.get(result)
+                                .then((ret)=>{
+                                    user.mch_id = result
+                                    user.mch_name = ret.mch_name
+                                    actor.stat = status.__login
+                                })
+                            }
+                            // 2、扫老板授权
+                            if(result.indexOf('/user/grantBoss') == 0){
+                                url = result+"&openid="+user.userinfo.openid
+                                _.$axios.get(url)
+                                .then((ret)=>{
+                                    if(ret.data.info == 'success'){
+                                        alert("授权成功")
+                                    }
+                                })
+                                .catch((error)=>{
+                                    alert("error")
+                                })
+                            }
+                            
+                        }
+                });
+                
                 console.log("__login")
             },
             join(){

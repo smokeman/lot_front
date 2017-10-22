@@ -22,13 +22,13 @@
 
 <script>
     import {XSwitch,Datetime,Clocker,XButton,Group,Scroller,Divider,XInput} from 'vux'
-    import axios from 'axios'
-    import qs from 'qs'
-    import ip from '../../api/ip.js'
+    // import axios from 'axios'
+    // import qs from 'qs'
+    // import ip from '../../api/ip.js'
 
     const nowStr = new Date().getFullYear() + "-" + (new Date().getMonth() + 1) + '-' + (new Date().getDate() +1)
-    axios.defaults.baseURL = "http://" + ip
-    axios.defaults.headers['Content-Type']="application/x-www-form-urlencoded"
+    // axios.defaults.baseURL = "http://" + ip
+    // axios.defaults.headers['Content-Type']="application/x-www-form-urlencoded"
 
     export default {
         components: {
@@ -75,7 +75,7 @@
         },
         methods: {
             save(){
-                axios.post("/coupon/save",qs.stringify({
+                this.$axios.post("/coupon/save",{
                     mch_id:1,
                     mch_name:'1912',
                     price:this.price,
@@ -83,7 +83,7 @@
                     num:this.num,
                     end_date:this.end_date,
                     pay_type:this.value?1:0
-                }))
+                })
                 .then((ret)=>{
                     console.log(ret.data.coupon_id)
                     this.get()
@@ -91,7 +91,7 @@
 
             },
             get(){
-                axios.get("/coupon/getByMchId?mch_id=1")
+                this.$axios.get("/coupon/getByMchId?mch_id=1")
                 .then((ret)=>{
                     console.log(ret)
                     console.log(ret.data)

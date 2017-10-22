@@ -2,6 +2,12 @@ const path = require('path')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const VuxLoader = require('vux-loader')
 
+// new webpack.DefinePlugin({
+//     "process.env": {
+//         NODE_ENV: JSON.stringify('dev') // default value if not specified
+//     }
+// })
+
 let originalConfig = {
     entry: {
         main: './src/main'

@@ -10,12 +10,6 @@
             <button-tab-item @on-item-click="pull()">取酒扫码</button-tab-item>
         </button-tab>
         <divider>————————————————————————————</divider>
-        <!--<group>
-            <x-input title="酒名" placeholder="输入酒名" v-model="wine_name"></x-input>
-            <x-number title="数量" v-model="roundValue" button-style="round" :min="0" :max="5"><input type="text"></x-number>
-            <button type="primary" plain style="border-radius:99px;width: 45%" v-on:click="newList">增加</button>
-            <button type="primary" plain style="border-radius:99px;width: 45%">重置</button>
-        </group>-->
         <group v-if="status == 1">
             <button-tab v-model="demo02">
                 <button-tab-item @on-item-click="save()">保存</button-tab-item>
@@ -57,7 +51,7 @@
         </group>
         <divider></divider>
         <group v-if="status == 2">
-            请用户扫码确认1
+            请用户扫码确认
             <!--<qrcode value="" type="img"></qrcode>-->
             <qrcode :value="qrcode" type="img"></qrcode>
         </group>
@@ -69,36 +63,36 @@
             <div v-for="wine in wineGet">{{wine.name}} * {{wine.num}} </div>
             <button v-on:click="pullDo">取酒处理</button>
         </group>
-        <!--<alert title="提示" content="内容不能为空" onShow="alert"></alert>-->
-        <div v-transfer-dom>
-            <!--<alert v-model="show" title="提示" @on-show="onShow" @on-hide="onHide">内容不能为空</alert>-->
+        <div v-for="ticket in ticketArr">
+            <form-preview :header-label="ticket.mch_name" header-value="距离过期还剩2天" :body-items="ticket.wineList" :footer-buttons="buttons2" name="ticket.wind_id"></form-preview>
+            </br>
         </div>
-        <!--<div>
-            <x-button style="width:40%">保存</x-button>
-            <x-button style="width:40%">重置</x-button>
-        </div>-->
+        <div v-transfer-dom >
+            <x-dialog style="position:relative;top:-100px;" v-model="show" hide-on-blur :dialog-style="{'max-width': '100%', width: '100%', height: '50%', 'background-color': 'transparent'}">
+                <p style="color:#fff;text-align:center;" @click="show = false">
+                
+                <qrcode :value="qrcode" type="img" style="max-width:100%"></qrcode>
+                <br>
+                <br>
+                <x-icon type="ios-close-outline" style="fill:#fff;"></x-icon>
+                </p>
+            </x-dialog>
+        </div>
     </div>
 </template>
 
 <script>
-    import {Alert,Flexbox,FlexboxItem,XButton,Cell,ButtonTab, ButtonTabItem,Divider,XInput,XNumber,Group,Qrcode,TransferDomDirective as TransferDom} from 'vux'
-    import wx from 'weixin-js-sdk'
-    // import wine from '../../api/wine.js'
-    import status from '../../api/status.js'
-    import axios from 'axios'
-    import qs from 'qs'
-    // import owner from '../../api/owner.js'
-    import user from '../../api/user.js'
-    import ip from '../../api/ip.js'
+    import {XDialog,Alert,Flexbox,FlexboxItem,XButton,Cell,ButtonTab, ButtonTabItem,Divider,XInput,XNumber,Group,Qrcode,TransferDomDirective as TransferDom} from 'vux'
 
-    const url = "http://" + ip
-    axios.defaults.baseURL = "http://" + ip
+    import status from '../../api/status.js'
+    import user from '../../api/user.js'
 
     export default {
         directives: {
             TransferDom
         },
         components:{
+            XDialog,
             Alert,
             Flexbox,
             FlexboxItem,
@@ -123,52 +117,16 @@
                 wine_name:'',
                 show: false,
                 qrcode:'',
-                wx
+                ticketArr:[],
+                pull_id:0
             }
         },
         methods:{
-            pullDo(){
-                axios.post("/wine/wine_do",qs.stringify({wine_id:5}))
-                .then((ret)=>{
-                    // 通知用户
-                    user.socket.emit("notify",{tag:'1'},"取酒完成")
-                    
-                })
-            },
-            scan(){
-                axios.get("/wine/wine_getbyid?wine_id=5")
-                .then((ret)=>{
-                    var winArr = ret.data.wine_list
-                    console.log(winArr)
-                    var tmpArr = []
-                    var tmpObj
-                    winArr.split(',').forEach((item,index)=>{
-                        if(index % 2 == 0){
-                            tmpObj = {}
-                            tmpObj["name"] = item
-                            tmpArr.push(tmpObj)
-                        }else{
-                            tmpObj["num"] = item
-                        }
-                    })
-                    this.wineGet = tmpArr
-                    this.status = 4
-                })
-            },
+            // 第一步－初始化
             push(){
                 this.status = 1
-                
             },
-            pull(){
-                this.status = 3
-                wx.scanQRCode({
-                needResult: 1,
-                desc: 'scanQRCode desc',
-                success: function (res) {
-                    alert(JSON.stringify(res));
-                }
-                });
-            },
+            // 第二部－新增
             newList(){
                 if(this.wineList.length == 0){
                     this.wineList.push({name:'',num:1})
@@ -190,39 +148,30 @@
                     return
                 }
                 this.wineList.push({name:'',num:0})
-                // if(this.wineList.length > 0){
-                //     var len = this.wineList.length - 1
-                //     if(this.wineList[len].name == '' || this.wineList[len].num == 0){
-                //         return
-                //     }
-                // }else{
-                    
-                // }
             },
+            // 第三部－保存－待扫
             save(){
-                axios.defaults.baseURL = "http://127.0.0.1:4000"
-                // axios.defaults.headers.common['Authorization'] = 
-                axios.defaults.headers['Content-Type']="application/x-www-form-urlencoded"
-                // axios.defaults.headers['Content-Type']="application/json"
                 if(this.wineList.length == 0 || this.wineList[0].name == '' || this.wineList[0].num == '' ){
                     this.showPlugin()
                 }else{
                     let _wine_info = {
-                        user_info:{oper:'abcde123456',nick:'smoke',mch_id:1},
+                        user_info:{oper:user.userinfo.openid,nick:user.userinfo.nick,mch_id:user.userinfo.mch_id},
                         wine_list:this.wineList
                     }
-                    axios.post('/wine/wine_save',qs.stringify(_wine_info))
+                    this.$axios.post('/wine/wine_save',_wine_info)
                     .then((ret)=>{
                         console.log(ret.data.wine_id)
-                        this.qrcode = url + "/wine_update?wine_id=" + ret.data.wine_id
+                        this.qrcode = "/wine/wine_update?wine_id=" + ret.data.wine_id
+                        this.show = true
                         this.status = 2
                         var _ = this
 
+                        var tag_id = ret.data.wine_id
+
                         user.socket.emit("subscribe",{
-                            mch_id:1,
-                            user_id:1,
-                            openid:'xxx',
-                            tag:2
+                            mch_id:user.userinfo.mch_id,
+                            openid:user.userinfo.openid,
+                            tag:tag_id
                         })
 
                         user.socket.on('notify',function(_data){
@@ -236,15 +185,56 @@
                                     console.log('Plugin: I\'m hiding now')
                                 }
                             })
-                            user.socket.emit('cancelSubscribe',{tag:2})
+                            user.socket.emit('cancelSubscribe',{tag:tag_id})
                         })
 
                     })
                 }
             },
+            // step 1
+            pull(){
+                this.status = 3
+                
+            },
+            // step 2
+            scan(){
+                wx.scanQRCode({
+                needResult: 1,
+                desc: 'scanQRCode desc',
+                success: function (res) {
+                    // JSON.stringify(res);
+                    this.pull_id = res.split("=")[1]
+                    this.$axios.get(res)
+                    .then((ret)=>{
+                        var winArr = ret.data.wine_list
+                        console.log(winArr)
+                        var tmpArr = []
+                        var tmpObj
+                        winArr.split(',').forEach((item,index)=>{
+                            if(index % 2 == 0){
+                                tmpObj = {}
+                                tmpObj["name"] = item
+                                tmpArr.push(tmpObj)
+                            }else{
+                                tmpObj["num"] = item
+                            }
+                        })
+                        this.wineGet = tmpArr
+                        this.status = 4
+                    })
+                }
+                });
+            },
+            // step 3
+            pullDo(){
+                this.$axios.post("/wine/wine_do",{wine_id:this.pull_id})
+                .then((ret)=>{
+                    // 通知用户
+                    user.socket.emit("notify",{tag:this.pull_id},"取酒完成")
+                    
+                })
+            },
             reset(){
-                console.log(1)
-                console.log(wx)
             },
             showPlugin () {
                 this.$vux.alert.show({
@@ -286,7 +276,7 @@
             }
         },
         mounted(){
-            
+        }
             // wx.config({
             //     debug: false,
             //     appId: 'wx4fe135a46ae46e63',
@@ -332,12 +322,5 @@
             //         'openCard'
             //     ]
             // });
-        }
-            // onHide () {
-            //     console.log('on hide')
-            // },
-            // onShow () {
-            //     console.log('on show')
-            // }
         }
 </script>

@@ -15,7 +15,7 @@
           <span slot="icon">
             <img src="./assets/icon_nav_article.png"></img>
           </span>
-          <span slot="label">抽奖</span>
+          <span slot="label">抽奖{{ user.mch_id != 0 ? '当前门店:' + user.mch_name : ''}}</span>
         </TabbarItem>
         <!--<TabbarItem link="/news">
           <span slot="icon">
@@ -59,6 +59,18 @@
           </span>
           <span slot="label">我的</span>
         </TabbarItem>
+        <TabbarItem link="/adminmy">
+          <span slot="icon">
+            <img src="./assets/icon_nav_msg.png"></img>
+          </span>
+          <span slot="label">员工我的</span>
+        </TabbarItem>
+        <TabbarItem link="/role">
+          <span slot="icon">
+            <img src="./assets/icon_nav_msg.png"></img>
+          </span>
+          <span slot="label">员工授权</span>
+        </TabbarItem>
       </Tabbar>
     </ViewBox>
   </div>
@@ -69,12 +81,14 @@
   //   import router from './common/js/router.js';
   import router from './router/router.config.js'
   import { mapState, mapActions } from 'vuex'
+  import user from './api/user.js'
 
   export default {
     data() {
       return {
         d:1,
-        options:{showBack: false}
+        options:{showBack: false},
+        user
       };
     },
     router,
@@ -96,7 +110,6 @@
           // 说明是子页面
           this.options.showBack = true
           setTimeout(() => {
-            console.log('1111111111111111111111')
             this.box = document.querySelector('#demo_list_box')
             
             if (this.box) {
@@ -109,19 +122,69 @@
             console.log(this.box)
           }, 1000)
         }
-      }
+      },
+      // 'user.mch_id':function(val,oldVal{})
     },
     beforeDestroy () {
       this.box && this.box.removeEventListener('scroll', this.handler, false)
     },
     mounted(){
-      // console.log(mapActions)
-        // this.handler = () => {
-          // if (this.path === '/demo') {
-            // this.box = document.querySelector('#demo_list_box')
-            // this.updateDemoPosition(this.box.scrollTop)
-          // }
-      // }
+
+      var openid = '',
+          nick = '',
+          head = '',
+          role = '',
+          mch_id = 0,
+          mch_name = ''
+
+      if(!document.querySelector("#name")){
+        openid = "xxxxxxxxxxxxxxxxxxxx"
+        nick = "测试员工"
+        head = "http://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83ericye6VnJHHcOyUEWPFhxUINAdBW34V60AF1klnRGoicTiaNpibeupB2HTGhOnOkwVG9zj4k2vNOIsTg/0"
+        mch_id = 1
+        mch_name = "1912"
+        role = '1'
+      }else{
+        var userInfo = JSON.parse(document.querySelector("#name").innerHTML)
+        openid = userInfo.openid
+        nick = userInfo.nickname
+        head = userInfo.headimgurl
+        mch_id = userInfo.mch_id
+        mch_name = userInfo.mch_name
+        role = userInfo.role
+      }
+
+      // localStorage.setItem("openid", openid)
+      // localStorage.setItem("nick", nick)
+      // localStorage.setItem("head", head)
+      // localStorage.setItem("mch_id", mch_id)
+      // localStorage.setItem("mch_name", mch_name)
+      // localStorage.setItem("role",role)
+
+      var DOMAIN_DOMAIN = "http://www.aoxingtec.cn/wx_scan";
+      // function initJsapi() {
+      var url = encodeURIComponent(location.href.split('#')[0]);
+      $.getJSON(DOMAIN_DOMAIN , {'url': url}, function (r) {
+          wx.config({
+              debug: false,
+              appId: r.appId,
+              timestamp: r.timestamp,
+              nonceStr: r.nonceStr,
+              signature: r.signature,
+              jsApiList: [
+                  'checkJsApi',
+                  'scanQRCode',
+                  // 'onMenuShareAppMessage'
+                  // 所有要调用的 API 都要加到这个列表中
+              ]
+          });
+          // initWxShareOption();
+      });
+
+      user.init({
+        openid,nick,mch_id,mch_name,head,usertype:role
+      })
+
     },
     computed: mapState({
       demoTop: state => state.vux.demoScrollTop,

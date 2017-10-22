@@ -163,6 +163,7 @@
         },
         mounted() {
             owner.stat = status.__begin
+            // alert(document.querySelector("#name").innerHTML)
         },
         methods: {
             mchin() {

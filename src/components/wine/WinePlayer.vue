@@ -16,13 +16,13 @@
             <button type="primary" plain style="border-radius:99px;width: 45%" v-on:click="newList">增加</button>
             <button type="primary" plain style="border-radius:99px;width: 45%">重置</button>
         </group>-->
-        <group v-if="status == 1">此处扫码枪
-            <button v-on:click="scan">扫码</button>
+        <group v-if="status == 1">
+            <x-button type="primary" @click.native="scan">扫码</x-button>
         </group>
         <scroller v-if="status == 2" lock-x height="500px" ref="scroller">
             <div>
                 <div v-for="ticket in ticketArr">
-                    <form-preview :header-label="ticket.mch_name" header-value="距离过期还剩2天" :body-items="ticket.wineList" :footer-buttons="buttons2" name="demo"></form-preview>
+                    <form-preview :header-label="ticket.mch_name" header-value="距离过期还剩2天" :body-items="ticket.wineList" :footer-buttons="buttons2" name="ticket.wind_id"></form-preview>
                     </br>
                 </div>
                 
@@ -42,33 +42,43 @@
         <!--</group>-->
         </scroller>
         <!--<divider></divider>-->
-        <group v-if="status == 3">
+        <!--<group v-if="status == 3">
             请用户扫码确认
             请等待管理员确认，取酒进行中........
             <qrcode :value="url" type="img"></qrcode>
-        </group>
+        </group>-->
         
-        
-        <!--<div>
-            <x-button style="width:40%">保存</x-button>
-            <x-button style="width:40%">重置</x-button>
-        </div>-->
+        <div v-transfer-dom >
+            <x-dialog style="position:relative;top:-100px;" v-model="show" hide-on-blur :dialog-style="{'max-width': '100%', width: '100%', height: '50%', 'background-color': 'transparent'}">
+                <p style="color:#fff;text-align:center;" @click="show = false">
+                
+                <qrcode :value="qrcode" type="img" style="max-width:100%"></qrcode>
+                <br>
+                <br>
+                <x-icon type="ios-close-outline" style="fill:#fff;"></x-icon>
+                </p>
+            </x-dialog>
+        </div>
     </div>
 </template>
 
 <script>
-    import {XButton,Cell,ButtonTab, ButtonTabItem,Divider,XInput,XNumber,Group,Qrcode,FormPreview,Scroller} from 'vux'
+    import {TransferDomDirective as TransferDom,XDialog,XButton,Cell,ButtonTab, ButtonTabItem,Divider,XInput,XNumber,Group,Qrcode,FormPreview,Scroller} from 'vux'
     // import actor from '../../api/actor.js'
-    import axios from 'axios'
+    // import axios from 'axios'
     import user from '../../api/user.js'
     import util from '../../api/util.js'
-    import ip from '../../api/ip.js'
+    // import ip from '../../api/ip.js'
 
-    var url = "http://" + ip
-    axios.defaults.baseURL = url
+    // var url = "http://" + ip
+    // axios.defaults.baseURL = url
 
     export default {
+        directives: {
+            TransferDom
+        },
         components:{
+            XDialog,
             Cell,
             XButton,
             ButtonTab,
@@ -83,58 +93,39 @@
         },
         data(){
             return {
-                url:"http://127.0.0.1:4000/wine/wine_getbyid?win_id=5",
-                // actor,
+                url:"",
                 demo01:0,
                 demo02:0,
                 roundValue:0,
                 status:0,
                 ticketArr:[],
-                // listArr:[],
-                // list: [{
-                //     label: '商品',
-                //     value: '数量'
-                // }, {
-                //     label: '威士忌',
-                //     value: '3'
-                // }, {
-                //     label: '百威',
-                //     value: '2.5'
-                // }],
-                // list1: [{
-                //     label: '商品',
-                //     value: '数量'
-                // }, {
-                //     label: '威士忌1',
-                //     value: '3'
-                // }, {
-                //     label: '百威1',
-                //     value: '2.5'
-                // }],
                 buttons2: [{
                     style: 'primary',
                     text: '取酒',
                     onButtonClick: (name) => {
-                    // alert(`clicking ${name}`)
-                    this.status = 3
+                        this.status = 3
+                        this.tickid = name
+                        this.url = "/wine/wine_getbyid?win_id=" + name
                     }
                 }],
                 wine_name:'',
                 user,
-                util
+                util,
+                tickId:0,
+                show:false
             }
         },
         watch:{
             'status':function(val,oldVal){
                 switch(val){
                     case 2:
-                        axios.get('/wine/wine_getArrByUser?openid='+'xxx')
+                        this.$axios.get('/wine/wine_getArrByUser?openid='+user.userinfo.openid)
                         .then((ret)=>{
-                            console.log(ret.data)
                             var _ = this
                             var tmpObj = {}
                             ret.data.forEach((el,index)=>{
                                 tmpObj = {}
+                                tmpObj.wine_id = el.wine_id
                                 tmpObj.mch_id = el.mch_id
                                 tmpObj.mch_name = el.mch_name
                                 tmpObj.openid = el.openid
@@ -145,18 +136,18 @@
                         })
                         break;
                     case 3:
+                        this.show = true
                         // 订阅,事件处理完得到消息
                         user.socket.emit('subscribe',{
-                            mch_id:1,
-                            user_id:1,
-                            openid:'xxxxx',
-                            tag:'1'
+                            mch_id:user.userinfo.mch_id,
+                            openid:user.userinfo.openid,
+                            tag:this.tickid
                         })
                         // 监听通知
                         user.socket.on('notify',function(_data){
                             alert(_data)
                             // 收到通知后 取消订阅
-                            user.socket.emit('cancelSubscribe',{tag:'1'})
+                            user.socket.emit('cancelSubscribe',{tag:this.tickid})
                         })
                         break;
                     default:
@@ -164,66 +155,29 @@
             }
         },
         methods:{
-            scan(){
-                axios.get('/wine/wine_update?wine_id=1')
-                .then(()=>{
-                    console.log('success')
-                    // user.socket.emit("wine_notify")
-                    user.socket.emit('notify',{tag:2},"保存成功")
-                    
-                })
-            },
+            // step 1 初始化
             push(){
                 this.status = 1
             },
+            // step 2 scan
+            scan(){
+                wx.scanQRCode({
+                needResult: 1,
+                desc: 'scanQRCode desc',
+                success: function (res) {
+                    // alert(JSON.stringify(res));
+                    this.$axios.get(res)
+                    .then(()=>{
+                        var tag_id = res.split("=")[1]
+                        user.socket.emit('notify',{tag:tag_id},"存酒成功")
+                    })
+                }
+                });
+            },
+            // 第一步 初始化
             pull(){
                 this.status = 2
-            },
-            newList(){
-                if(this.wineList.length == 0){
-                    this.wineList.push({name:'',num:''})
-                }
-                if(this.wineList[this.wineList.length - 1].name == undefined){
-                    console.log('名不能未定义')
-                    return
-                }
-                if(this.wineList[this.wineList.length - 1].name == ''){
-                    console.log('名不能为空')
-                    return
-                }
-                if(this.wineList[this.wineList.length - 1].num == undefined){
-                    console.log('数量不能为定义')
-                    return
-                }
-                if(this.wineList[this.wineList.length - 1].num == 0){
-                    console.log('数量不能空')
-                    return
-                }
-                this.wineList.push({name:'',num:0})
-                // if(this.wineList.length > 0){
-                //     var len = this.wineList.length - 1
-                //     if(this.wineList[len].name == '' || this.wineList[len].num == 0){
-                //         return
-                //     }
-                // }else{
-                    
-                // }
-            },
-            save(){
-                this.status ++
-            },
-            reset(){
-
-            },
-            // mount(){
-                // actor.initWine({
-                //     mch_id: 1,
-                //     mch_name: '1912_酒吧',
-                //     openid:'abcdefg',
-                //     title: '',
-                //     nick: 'smoke',
-                // })
-            // }
+            }
         },
         mounted(){
             

@@ -64,14 +64,8 @@
 
 <script>
     import {TransferDomDirective as TransferDom,XDialog,XButton,Cell,ButtonTab, ButtonTabItem,Divider,XInput,XNumber,Group,Qrcode,FormPreview,Scroller} from 'vux'
-    // import actor from '../../api/actor.js'
-    // import axios from 'axios'
     import user from '../../api/user.js'
     import util from '../../api/util.js'
-    // import ip from '../../api/ip.js'
-
-    // var url = "http://" + ip
-    // axios.defaults.baseURL = url
 
     export default {
         directives: {

@@ -131,6 +131,7 @@
     mounted(){
 
       var openid = '',
+          username = '',
           nick = '',
           head = '',
           role = '',
@@ -138,20 +139,24 @@
           mch_name = ''
 
       if(!document.querySelector("#name")){
-        openid = "xxxxxxxxxxxxxxxxxxxx"
+        openid = "opxwxw9i2-AtcYCNqY6YNmu5ugkg"
+        username = 'test'
         nick = "测试员工"
         head = "http://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83ericye6VnJHHcOyUEWPFhxUINAdBW34V60AF1klnRGoicTiaNpibeupB2HTGhOnOkwVG9zj4k2vNOIsTg/0"
         mch_id = 1
         mch_name = "1912"
         role = '1'
+        console.log('null')
       }else{
         var userInfo = JSON.parse(document.querySelector("#name").innerHTML)
         openid = userInfo.openid
+        username = userInfo.username
         nick = userInfo.nickname
         head = userInfo.headimgurl
         mch_id = userInfo.mch_id
         mch_name = userInfo.mch_name
         role = userInfo.role
+        console.log('have')
       }
 
       // localStorage.setItem("openid", openid)
@@ -161,7 +166,7 @@
       // localStorage.setItem("mch_name", mch_name)
       // localStorage.setItem("role",role)
 
-      var DOMAIN_DOMAIN = "http://www.aoxingtec.cn/wx_scan";
+      var DOMAIN_DOMAIN = "http://chat.ha.aoxing.aoxingtec.cn/wx_scan";
       // function initJsapi() {
       var url = encodeURIComponent(location.href.split('#')[0]);
       $.getJSON(DOMAIN_DOMAIN , {'url': url}, function (r) {
@@ -182,7 +187,7 @@
       });
 
       user.init({
-        openid,nick,mch_id,mch_name,head,usertype:role
+        openid,nick,mch_id,mch_name,head,role
       })
 
     },

@@ -26,6 +26,7 @@
     // import status from '../../api/status.js'
     // import dateformat from 'dateformat'
     import { Group,Cell,XImg } from 'vux'
+    import user from '../../api/user.js'
 
     export default {
         components: {
@@ -41,13 +42,9 @@
             }
         },
         mounted() {
-            this.img = localStorage.getItem("img")
-            this.openid = localStorage.getItem("openid")
-            this.nick = localStorage.getItem("nick")
-            // this.openid = localStorage.getItem("openid")
-            // owner.stat = status.__begin
-            // var userStr = document.querySelector("#name").innerHTML
-            // this.userInfo = JSON.parse(userStr)
+            this.img = user.head
+            this.openid = user.openid
+            this.nick = user.nick
         },
         methods: {
         }

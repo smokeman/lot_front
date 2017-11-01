@@ -60,9 +60,7 @@
     import status from '../../api/status.js'
     import actor from '../../api/actor.js'
     import dateformat from 'dateformat'
-    // import axios from 'axios'
     import user from '../../api/user.js'
-    // import ip from '../../api/ip.js'
 
     // axios.defaults.baseURL = "http://" + ip
     // axios.defaults.headers['Content-Type']="application/x-www-form-urlencoded"

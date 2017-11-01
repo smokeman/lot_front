@@ -24,10 +24,8 @@
 </template>
 
 <script>
-    // import owner from '../../api/owner.js'
-    // import status from '../../api/status.js'
-    // import dateformat from 'dateformat'
     import { Group,Cell,XImg,XButton } from 'vux'
+    import user from '../../api/user.js'
 
     export default {
         components: {
@@ -41,20 +39,20 @@
                 img:'',
                 openid:'',
                 nick:'',
-                username:'测试员工'
+                username:''
             }
         },
         mounted() {
-            this.img = localStorage.getItem("img")
-            this.openid = localStorage.getItem("openid")
-            this.nick = localStorage.getItem("nick")
-            if(this.img == undefined){
-                this.img = "http://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83ericye6VnJHHcOyUEWPFhxUINAdBW34V60AF1klnRGoicTiaNpibeupB2HTGhOnOkwVG9zj4k2vNOIsTg/0"
-            }
+            this.img = user.head
+            this.openid = user.openid
+            this.nick = user.nick
+            this.username = user.username
+            // this.img = localStorage.getItem("img")
             // this.openid = localStorage.getItem("openid")
-            // owner.stat = status.__begin
-            // var userStr = document.querySelector("#name").innerHTML
-            // this.userInfo = JSON.parse(userStr)
+            // this.nick = localStorage.getItem("nick")
+            // if(this.img == undefined){
+            //     this.img = "http://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83ericye6VnJHHcOyUEWPFhxUINAdBW34V60AF1klnRGoicTiaNpibeupB2HTGhOnOkwVG9zj4k2vNOIsTg/0"
+            // }
         },
         methods: {
             scan(){

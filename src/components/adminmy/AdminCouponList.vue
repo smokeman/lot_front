@@ -47,12 +47,9 @@
 <script>
     import {Flexbox,FlexboxItem,Grid,Toast,TransferDomDirective as TransferDom,XDialog,XHeader,XButton,Cell,ButtonTab, ButtonTabItem,Divider,XInput,XNumber,Group,Qrcode,Scroller} from 'vux'
     import FormPreview from '../../common/com/form-preview'
-    // import axios from 'axios'
-    // import axios from '../,./api/axios.js'
     import util from '../../api/util.js'
     import user from '../../api/user.js'
     import { mapState, mapActions } from 'vuex'
-    import ip from '../../api/ip.js'
 
     // axios.defaults.baseURL = "http://" + ip
     // axios.defaults.headers['Content-Type']="application/x-www-form-urlencoded"

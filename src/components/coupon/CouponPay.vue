@@ -15,14 +15,14 @@
 
 <script>
     import {Datetime,Clocker,XButton,Group,Scroller,Divider,XInput} from 'vux'
-    import axios from 'axios'
+    // import axios from 'axios'
     import qs from 'qs'
     import user from '../../api/user.js'
-    import ip from '../../api/ip.js'
+    // import ip from '../../api/ip.js'
 
     const nowStr = new Date().getFullYear() + "-" + (new Date().getMonth() + 1) + '-' + (new Date().getDate() +1)
-    axios.defaults.baseURL = "http://" + ip
-    axios.defaults.headers['Content-Type']="application/x-www-form-urlencoded"
+    // axios.defaults.baseURL = "http://" + ip
+    // axios.defaults.headers['Content-Type']="application/x-www-form-urlencoded"
 
     export default {
         components: {
